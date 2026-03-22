@@ -1,0 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+}
+
+@layer components {
+  .card-fade-enter {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  .card-fade-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 400ms ease-out, transform 400ms ease-out;
+  }
+}

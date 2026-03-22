@@ -1,5 +1,59 @@
 import { useState } from 'react'
 import { modules, competencyColors, scenarioTypeColors } from '../data/program'
+import { useMode } from '../context/ModeContext'
+
+const instructorMeta = {
+  0: {
+    outcomes: <><span className="mark">FK.1</span>, <span className="mark">FK.2</span> (пре-оценка)</>,
+    feedback: null,
+    competencyFocus: null,
+  },
+  1: {
+    outcomes: <><span className="mark">ОР 1.1</span>, <span className="mark">ОР 2.1</span>, <span className="mark">FK.1</span>, <span className="mark">FK.2</span>, <span className="mark">HD.2</span></>,
+    feedback: 'Обратная связь: разбор',
+    competencyFocus: {
+      focus: ['Коммуникация', 'Саморегуляция'],
+      background: [],
+      firstTouch: ['Коммуникация', 'Саморегуляция'],
+    },
+  },
+  2: {
+    outcomes: <><span className="mark">ОР 1.1</span>, <span className="mark">ОР 1.3</span>, <span className="mark">ОР 1.4</span>, <span className="mark">ОР 3.2</span>, <span className="mark">ОР 3.3</span></>,
+    feedback: 'Обратная связь: разбор',
+    competencyFocus: {
+      focus: ['Коммуникация'],
+      background: ['Саморегуляция'],
+      firstTouch: [],
+    },
+  },
+  3: {
+    outcomes: <><span className="mark">ОР 2.2</span>, <span className="mark">ОР 2.3</span>, <span className="mark">ОР 1.2</span>, <span className="mark">ОР 4.1</span>, <span className="mark">INT.1</span></>,
+    feedback: 'Обратная связь: рефлексивные вопросы',
+    competencyFocus: {
+      focus: ['Саморегуляция', 'Рефлексия'],
+      background: ['Коммуникация'],
+      firstTouch: ['Рефлексия'],
+    },
+  },
+  4: {
+    outcomes: <><span className="mark">ОР 3.1-3.3</span>, <span className="mark">ОР 1.3-1.4</span>, <span className="mark">ОР 4.1-4.2</span>, <span className="mark">INT.2</span></>,
+    feedback: 'Обратная связь: рефлексивные вопросы',
+    competencyFocus: {
+      focus: ['Коммуникация', 'Саморегуляция', 'Рефлексия'],
+      background: [],
+      firstTouch: ['Самоорганизация'],
+    },
+  },
+  5: {
+    outcomes: <><span className="mark">HD.1</span>, <span className="mark">HD.3</span>, <span className="mark">CAR.1</span>, <span className="mark">CAR.2</span>, <span className="mark">LHL.1</span>, <span className="mark">LHL.2</span> (пост-оценка)</>,
+    feedback: 'Обратная связь: самостоятельная рефлексия',
+    competencyFocus: {
+      focus: ['Рефлексия'],
+      background: ['Коммуникация', 'Саморегуляция', 'Самоорганизация'],
+      firstTouch: [],
+    },
+  },
+}
 
 function AxisIndicator({ level, maxLevel = 3 }) {
   if (level === null) return <span className="text-xs text-gray-300">·</span>
@@ -42,7 +96,52 @@ function ScenarioItem({ scenario }) {
   )
 }
 
-function ModuleCard({ module, isExpanded, onToggle, onStartSession }) {
+function InstructorAnnotation({ module }) {
+  const meta = instructorMeta[module.number]
+  if (!meta) return null
+
+  return (
+    <div className="space-y-3 mt-4 p-4 rounded-lg bg-indigo-50/50 border border-indigo-100">
+      <div className="text-[10px] text-indigo-400 uppercase tracking-wider font-semibold mb-2">Методическая аннотация</div>
+
+      {meta.competencyFocus && (
+        <div className="space-y-1">
+          {meta.competencyFocus.focus.length > 0 && (
+            <div className="text-sm text-gray-600">
+              <span className="font-medium text-indigo-600">В фокусе: </span>
+              {meta.competencyFocus.focus.join(', ')}
+            </div>
+          )}
+          {meta.competencyFocus.background.length > 0 && (
+            <div className="text-sm text-gray-600">
+              <span className="font-medium text-gray-500">Фоном: </span>
+              {meta.competencyFocus.background.join(', ')}
+            </div>
+          )}
+          {meta.competencyFocus.firstTouch.length > 0 && (
+            <div className="text-sm text-gray-600">
+              <span className="font-medium text-emerald-600">Первое касание: </span>
+              {meta.competencyFocus.firstTouch.join(', ')}
+            </div>
+          )}
+        </div>
+      )}
+
+      {meta.feedback && (
+        <div className="text-sm text-gray-600">
+          <span className="font-medium text-indigo-600">{meta.feedback}</span>
+        </div>
+      )}
+
+      <div className="text-sm text-gray-600">
+        <span className="font-medium text-indigo-600">Образовательные результаты: </span>
+        {meta.outcomes}
+      </div>
+    </div>
+  )
+}
+
+function ModuleCard({ module, isExpanded, onToggle, onStartSession, isInstructor }) {
   const isActive = module.isActive
   return (
     <div
@@ -65,7 +164,7 @@ function ModuleCard({ module, isExpanded, onToggle, onStartSession }) {
               {module.number}
             </div>
             <div>
-              <h3 className={`text-lg font-semibold ${isActive ? 'text-accent-800' : 'text-gray-800'}`}>
+              <h3 className={`font-display text-lg font-semibold ${isActive ? 'text-accent-800' : 'text-gray-800'}`}>
                 {module.name}
               </h3>
               <p className="text-sm text-gray-500">{module.phase} · {module.sessions} сессий</p>
@@ -124,6 +223,8 @@ function ModuleCard({ module, isExpanded, onToggle, onStartSession }) {
             </div>
           </div>
 
+          {isInstructor && <InstructorAnnotation module={module} />}
+
           {isActive && (
             <button
               onClick={onStartSession}
@@ -140,21 +241,19 @@ function ModuleCard({ module, isExpanded, onToggle, onStartSession }) {
 
 export default function ProgramMap({ onNavigate }) {
   const [expandedModule, setExpandedModule] = useState(1)
+  const { isInstructor } = useMode()
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <div className="max-w-2xl mx-auto px-6 py-12">
-        <button
-          onClick={() => onNavigate('landing')}
-          className="text-gray-400 hover:text-gray-600 transition-colors text-sm mb-8 block"
-        >
-          ← На главную
-        </button>
-
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Карта программы</h1>
+        <h1 className="font-display text-3xl font-bold text-gray-900 mb-2">
+          {isInstructor ? 'Структура программы' : 'Карта программы'}
+        </h1>
         <p className="text-gray-500 mb-8 leading-relaxed">
-          Путь от распознавания своих паттернов к автономному профессиональному развитию.
-          Каждый модуль представляет фазу обучения, не привязанную к календарю.
+          {isInstructor
+            ? 'Модульная структура из 25 сессий. Модули отражают этапы обучения пользователя (от распознавания к автономии), а не отдельные компетенции или ситуации.'
+            : 'Путь от распознавания своих паттернов к автономному профессиональному развитию.'
+          }
         </p>
 
         <div className="flex items-center justify-between mb-8 px-2 overflow-x-auto">
@@ -187,6 +286,7 @@ export default function ProgramMap({ onNavigate }) {
               isExpanded={expandedModule === m.number}
               onToggle={() => setExpandedModule(expandedModule === m.number ? null : m.number)}
               onStartSession={() => onNavigate('session')}
+              isInstructor={isInstructor}
             />
           ))}
         </div>
@@ -206,22 +306,25 @@ export default function ProgramMap({ onNavigate }) {
               <div className="text-sm text-gray-500">компетенции</div>
             </div>
           </div>
-          <div className="flex flex-wrap justify-center gap-2 mb-4">
-            {Object.entries(competencyColors).map(([name, colors]) => (
+          <div className="flex flex-wrap justify-center gap-2">
+            {Object.entries(competencyColors).map(([name]) => (
               <CompetencyBadge key={name} name={name} />
             ))}
           </div>
-          <div className="text-center text-xs text-gray-400 leading-relaxed space-y-1">
-            <p>Теоретическая основа: цикл Колба · SBL (Clark, 2013) · Action Mapping (Moore, 2017) · таксономия Финка (2003)</p>
-            <p>Саморегуляция: affect labeling (Lieberman et al., 2007) · когнитивная переоценка (Gross, 2015)</p>
-            <p>Метрики: модель Киркпатрика (4 уровня) · самоэффективность (Bandura, 1997)</p>
-          </div>
         </div>
 
-        <div className="mt-6 text-center">
+        <div className="mt-6 text-center space-y-3">
           <p className="text-xs text-gray-400">
             Подготовила Наталия Гурова МПДТПО251
           </p>
+          {isInstructor && (
+            <button
+              onClick={() => onNavigate('about')}
+              className="text-sm text-accent-600 hover:text-accent-700 transition-colors"
+            >
+              Подробнее о продукте →
+            </button>
+          )}
         </div>
       </div>
     </div>

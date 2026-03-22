@@ -1,9 +1,12 @@
 import { useState } from 'react'
+import { ModeProvider } from './context/ModeContext'
+import Header from './components/Header'
 import Landing from './components/Landing'
+import About from './components/About'
 import SessionPlayer from './components/SessionPlayer'
 import ProgramMap from './components/ProgramMap'
 
-export default function App() {
+function Router() {
   const [screen, setScreen] = useState('landing')
 
   const navigate = (target) => {
@@ -11,12 +14,25 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'instant' })
   }
 
-  switch (screen) {
-    case 'session':
-      return <SessionPlayer onNavigate={navigate} />
-    case 'map':
-      return <ProgramMap onNavigate={navigate} />
-    default:
-      return <Landing onNavigate={navigate} />
-  }
+  const showHeader = screen !== 'session'
+
+  return (
+    <>
+      {showHeader && <Header currentPage={screen} onNavigate={navigate} />}
+      <div className={showHeader ? 'pt-14 sm:pt-14' : ''}>
+        {screen === 'landing' && <Landing onNavigate={navigate} />}
+        {screen === 'about' && <About onNavigate={navigate} />}
+        {screen === 'session' && <SessionPlayer onNavigate={navigate} />}
+        {screen === 'map' && <ProgramMap onNavigate={navigate} />}
+      </div>
+    </>
+  )
+}
+
+export default function App() {
+  return (
+    <ModeProvider>
+      <Router />
+    </ModeProvider>
+  )
 }

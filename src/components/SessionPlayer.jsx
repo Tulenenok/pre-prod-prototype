@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { session } from '../data/session'
+import { useMode } from '../context/ModeContext'
 
 function FadeIn({ children, animKey }) {
   const [visible, setVisible] = useState(false)
@@ -16,6 +17,16 @@ function FadeIn({ children, animKey }) {
       }`}
     >
       {children}
+    </div>
+  )
+}
+
+function InstructorNote({ children }) {
+  return (
+    <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3 mt-4">
+      <p className="text-xs text-indigo-700">
+        <span className="mr-1.5">🎓</span>{children}
+      </p>
     </div>
   )
 }
@@ -46,7 +57,7 @@ function Markdown({ text, className = '' }) {
   )
 }
 
-function StepIntro({ step, onNext }) {
+function StepIntro({ step, onNext, isInstructor }) {
   return (
     <div className="text-center">
       <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent-100 text-accent-700 text-sm font-medium rounded-full mb-6">
@@ -68,11 +79,16 @@ function StepIntro({ step, onNext }) {
       >
         {step.buttonText}
       </button>
+      {isInstructor && (
+        <InstructorNote>
+          Контекст тренажера: калибровочная сессия модуля «Замечать». Формирует когнитивную базу (<span className="mark">FK.1</span>) и начинает тренировку <span className="mark">ОР 2.1</span> (распознавание паттерна избегания).
+        </InstructorNote>
+      )}
     </div>
   )
 }
 
-function StepNarrative({ step, onNext }) {
+function StepNarrative({ step, onNext, isInstructor }) {
   return (
     <div>
       {step.text.split('\n\n').map((p, i) => (
@@ -86,15 +102,20 @@ function StepNarrative({ step, onNext }) {
       >
         Дальше →
       </button>
+      {isInstructor && (
+        <InstructorNote>
+          <span className="mark">Нарративная транспортация</span> (Green & Brock, 2000): повествование от первого лица с конкретными деталями рабочей среды
+        </InstructorNote>
+      )}
     </div>
   )
 }
 
-function StepChoice({ step, onChoose }) {
+function StepChoice({ step, onChoose, isInstructor }) {
   const [hovered, setHovered] = useState(null)
   return (
     <div>
-      <h3 className="text-xl font-semibold text-gray-800 mb-6">{step.prompt}</h3>
+      <h3 className="font-display text-xl font-semibold text-gray-800 mb-6">{step.prompt}</h3>
       <div className="space-y-3">
         {step.options.map((option) => (
           <button
@@ -112,6 +133,11 @@ function StepChoice({ step, onChoose }) {
           </button>
         ))}
       </div>
+      {isInstructor && (
+        <InstructorNote>
+          Три стратегии разной продуктивности (спектр, не бинарный выбор). Варианты не маркированы до выбора, чтобы пользователь выбирал на основе склонности.
+        </InstructorNote>
+      )}
     </div>
   )
 }
@@ -137,7 +163,7 @@ function StepConsequence({ step, choiceId, onNext }) {
   )
 }
 
-function StepConsequenceFull({ step, choiceId, onNext }) {
+function StepConsequenceFull({ step, choiceId, onNext, isInstructor }) {
   const levelColors = [
     'border-red-200 bg-red-50/50',
     'border-amber-200 bg-amber-50/50',
@@ -182,15 +208,20 @@ function StepConsequenceFull({ step, choiceId, onNext }) {
       >
         Дальше →
       </button>
+      {isInstructor && (
+        <InstructorNote>
+          Все три последствия показаны для сравнения. В полной версии пользователь видит только свой результат. Цветовая маркировка: продуктивность стратегии.
+        </InstructorNote>
+      )}
     </div>
   )
 }
 
-function StepDebrief({ step, onNext }) {
+function StepDebrief({ step, onNext, isInstructor }) {
   return (
     <div>
       <div className="bg-gradient-to-br from-accent-50 to-blue-50 border border-accent-200 rounded-xl p-6">
-        <div className="text-sm font-semibold text-accent-600 uppercase tracking-wide mb-4">
+        <div className="font-display text-sm font-semibold text-accent-600 uppercase tracking-wide mb-4">
           {step.title}
         </div>
         {step.text.split('\n\n').map((p, i) => (
@@ -205,11 +236,16 @@ function StepDebrief({ step, onNext }) {
       >
         Дальше →
       </button>
+      {isInstructor && (
+        <InstructorNote>
+          Модули 1-2: подробный разбор формирует систему координат. С модуля 3 формат меняется на рефлексивные вопросы (<span className="mark">gradual release of responsibility</span>).
+        </InstructorNote>
+      )}
     </div>
   )
 }
 
-function StepSelfRegulation({ step, onNext }) {
+function StepSelfRegulation({ step, onNext, isInstructor }) {
   const [selected, setSelected] = useState(null)
   const [showFeedback, setShowFeedback] = useState(false)
 
@@ -224,7 +260,7 @@ function StepSelfRegulation({ step, onNext }) {
     return (
       <FadeIn animKey="sr-feedback">
         <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-6">
-          <div className="text-sm font-semibold text-amber-600 uppercase tracking-wide mb-4">
+          <div className="font-display text-sm font-semibold text-amber-600 uppercase tracking-wide mb-4">
             {fb.title}
           </div>
           <p className="text-gray-700 leading-relaxed mb-4">{fb.text}</p>
@@ -239,6 +275,11 @@ function StepSelfRegulation({ step, onNext }) {
         >
           Дальше →
         </button>
+        {isInstructor && (
+          <InstructorNote>
+            Блок саморегуляции (<span className="mark">ОР 2.1</span>, <span className="mark">HD.2</span>). Здесь нет «проигрыша»: любой ответ начинает разговор о паттерне. Приемы: <span className="mark">affect labeling</span> (Lieberman et al., 2007), <span className="mark">когнитивная переоценка</span> (Gross, 1998).
+          </InstructorNote>
+        )}
       </FadeIn>
     )
   }
@@ -260,7 +301,7 @@ function StepSelfRegulation({ step, onNext }) {
           </p>
         ))}
       </div>
-      <h3 className="text-xl font-semibold text-gray-800 mb-4">{step.prompt}</h3>
+      <h3 className="font-display text-xl font-semibold text-gray-800 mb-4">{step.prompt}</h3>
       <div className="space-y-3">
         {step.options.map((option) => (
           <button
@@ -276,15 +317,20 @@ function StepSelfRegulation({ step, onNext }) {
           </button>
         ))}
       </div>
+      {isInstructor && (
+        <InstructorNote>
+          Блок саморегуляции (<span className="mark">ОР 2.1</span>, <span className="mark">HD.2</span>). Здесь нет «проигрыша»: любой ответ начинает разговор о паттерне. Приемы: <span className="mark">affect labeling</span> (Lieberman et al., 2007), <span className="mark">когнитивная переоценка</span> (Gross, 1998).
+        </InstructorNote>
+      )}
     </div>
   )
 }
 
-function StepMicrotask({ step, onNext }) {
+function StepMicrotask({ step, onNext, isInstructor }) {
   return (
     <div>
       <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-6">
-        <div className="text-sm font-semibold text-emerald-600 uppercase tracking-wide mb-1">
+        <div className="font-display text-sm font-semibold text-emerald-600 uppercase tracking-wide mb-1">
           {step.label}
         </div>
         {step.sublabel && (
@@ -303,16 +349,21 @@ function StepMicrotask({ step, onNext }) {
       >
         Понятно →
       </button>
+      {isInstructor && (
+        <InstructorNote>
+          Мост к реальному поведению (<span className="mark">метрика 2.5</span>). Градиент сложности: от наблюдения (модуль 1) к реальному действию (модуль 3) и артефактам (модуль 4).
+        </InstructorNote>
+      )}
     </div>
   )
 }
 
-function StepSelfEfficacy({ step, onNext }) {
+function StepSelfEfficacy({ step, onNext, isInstructor }) {
   const [value, setValue] = useState(null)
 
   return (
     <div className="text-center">
-      <h3 className="text-xl font-semibold text-gray-800 mb-3">{step.prompt}</h3>
+      <h3 className="font-display text-xl font-semibold text-gray-800 mb-3">{step.prompt}</h3>
       {step.sublabel && (
         <p className="text-xs text-gray-400 mb-8">{step.sublabel}</p>
       )}
@@ -345,21 +396,26 @@ function StepSelfEfficacy({ step, onNext }) {
           </button>
         </FadeIn>
       )}
+      {isInstructor && (
+        <InstructorNote>
+          Измерение <span className="mark">самоэффективности</span> (Bandura, 1997), <span className="mark">метрика 2.4</span>. Предиктор реального поведения: готовность применить, а не только знание. Закрывает разрыв «знаю, но боюсь».
+        </InstructorNote>
+      )}
     </div>
   )
 }
 
-function StepOutro({ step, onNavigate }) {
+function StepOutro({ step, onNavigate, isInstructor }) {
   return (
     <div className="text-center">
       <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 mb-6">
         <span className="text-3xl">✓</span>
       </div>
-      <h2 className="text-2xl font-bold text-gray-800 mb-3">{step.title}</h2>
+      <h2 className="font-display text-2xl font-bold text-gray-800 mb-3">{step.title}</h2>
       <p className="text-gray-600 mb-6">{step.text}</p>
 
       <div className="text-left bg-gray-50 rounded-xl p-5 mb-6 max-w-md mx-auto">
-        <div className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Что ты сделал в этой сессии</div>
+        <div className="font-display text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Что ты сделал в этой сессии</div>
         <ul className="space-y-2">
           {step.learnings.map((l, i) => (
             <li key={i} className="flex gap-3 text-gray-600 text-sm leading-relaxed">
@@ -378,11 +434,17 @@ function StepOutro({ step, onNavigate }) {
       >
         {step.buttonText}
       </button>
+      {isInstructor && (
+        <InstructorNote>
+          Сессия покрывает: <span className="mark">ОР 1.1</span> (запрос помощи), <span className="mark">ОР 2.1</span> (распознавание паттерна), <span className="mark">FK.1</span> (ориентировка в ситуации адаптации). Метрики: <span className="mark">2.1</span>, <span className="mark">2.4</span>.
+        </InstructorNote>
+      )}
     </div>
   )
 }
 
 export default function SessionPlayer({ onNavigate }) {
+  const { isInstructor } = useMode()
   const [stepIndex, setStepIndex] = useState(0)
   const [choices, setChoices] = useState({})
   const steps = session.steps
@@ -412,25 +474,25 @@ export default function SessionPlayer({ onNavigate }) {
   const renderStep = () => {
     switch (currentStep.type) {
       case 'intro':
-        return <StepIntro step={currentStep} onNext={goNext} />
+        return <StepIntro step={currentStep} onNext={goNext} isInstructor={isInstructor} />
       case 'narrative':
-        return <StepNarrative step={currentStep} onNext={goNext} />
+        return <StepNarrative step={currentStep} onNext={goNext} isInstructor={isInstructor} />
       case 'choice':
-        return <StepChoice step={currentStep} onChoose={handleChoice} />
+        return <StepChoice step={currentStep} onChoose={handleChoice} isInstructor={isInstructor} />
       case 'consequence':
         return <StepConsequence step={currentStep} choiceId={lastChoiceId()} onNext={goNext} />
       case 'consequence_full':
-        return <StepConsequenceFull step={currentStep} choiceId={choices[currentStep.choiceStepId]} onNext={goNext} />
+        return <StepConsequenceFull step={currentStep} choiceId={choices[currentStep.choiceStepId]} onNext={goNext} isInstructor={isInstructor} />
       case 'debrief':
-        return <StepDebrief step={currentStep} onNext={goNext} />
+        return <StepDebrief step={currentStep} onNext={goNext} isInstructor={isInstructor} />
       case 'selfregulation':
-        return <StepSelfRegulation step={currentStep} onNext={goNext} />
+        return <StepSelfRegulation step={currentStep} onNext={goNext} isInstructor={isInstructor} />
       case 'microtask':
-        return <StepMicrotask step={currentStep} onNext={goNext} />
+        return <StepMicrotask step={currentStep} onNext={goNext} isInstructor={isInstructor} />
       case 'selfefficacy':
-        return <StepSelfEfficacy step={currentStep} onNext={goNext} />
+        return <StepSelfEfficacy step={currentStep} onNext={goNext} isInstructor={isInstructor} />
       case 'outro':
-        return <StepOutro step={currentStep} onNavigate={onNavigate} />
+        return <StepOutro step={currentStep} onNavigate={onNavigate} isInstructor={isInstructor} />
       default:
         return null
     }

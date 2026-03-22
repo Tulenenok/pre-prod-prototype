@@ -1,23 +1,47 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.cdnfonts.com/css/gilroy-1');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --accent-50: #f0f9ff;
+    --accent-100: #e0f2fe;
+    --accent-200: #bae6fd;
+    --accent-300: #7dd3fc;
+    --accent-400: #38bdf8;
+    --accent-500: #0ea5e9;
+    --accent-600: #0284c7;
+    --accent-700: #0369a1;
+    --accent-800: #075985;
+    --accent-900: #0c4a6e;
+    --mark-color: rgba(14, 165, 233, 0.18);
+  }
+
+  .mode-instructor {
+    --accent-50: #eff6ff;
+    --accent-100: #dbeafe;
+    --accent-200: #bfdbfe;
+    --accent-300: #93c5fd;
+    --accent-400: #60a5fa;
+    --accent-500: #3b82f6;
+    --accent-600: #2563eb;
+    --accent-700: #1d4ed8;
+    --accent-800: #1e40af;
+    --accent-900: #1e3a8a;
+    --mark-color: rgba(37, 99, 235, 0.18);
+  }
+
   body {
     @apply bg-gray-50 text-gray-900 antialiased;
   }
 }
 
 @layer components {
-  .card-fade-enter {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  .card-fade-enter-active {
-    opacity: 1;
-    transform: translateY(0);
-    transition: opacity 400ms ease-out, transform 400ms ease-out;
+  .mark {
+    background: linear-gradient(to top, var(--mark-color) 38%, transparent 38%);
+    padding: 0 2px;
   }
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { session } from '../data/session'
+import { scenarios } from '../data/scenarios'
 import { useMode } from '../context/ModeContext'
 
 function FadeIn({ children, animKey }) {
@@ -54,6 +54,82 @@ function Markdown({ text, className = '' }) {
         return <span key={i}>{part}</span>
       })}
     </span>
+  )
+}
+
+const scenarioCardMeta = [
+  {
+    badge: 'Модуль 0: Начало',
+    description: 'Калибровочная сессия: тренажер фиксирует вашу текущую стратегию реагирования на код-ревью. Минимальная обратная связь.',
+    badgeColors: 'bg-gray-100 text-gray-600',
+  },
+  {
+    badge: 'Модуль 1: Замечать',
+    description: 'Распознавание паттерна: двухчасовое молчание при блокере. Первый контакт с affect labeling.',
+    badgeColors: 'bg-sky-100 text-sky-600',
+  },
+  {
+    badge: 'Модуль 3: Действовать',
+    description: 'Максимальная эмоциональная нагрузка: публичная ошибка, признание, подготовка к разбору.',
+    badgeColors: 'bg-rose-100 text-rose-600',
+  },
+]
+
+function ScenarioPicker({ scenarios, onSelect, onNavigate, isInstructor }) {
+  return (
+    <div className="min-h-screen bg-white">
+      <button
+        onClick={() => onNavigate('landing')}
+        className="fixed top-4 left-4 z-40 text-gray-400 hover:text-gray-600 transition-colors text-sm"
+      >
+        ← На главную
+      </button>
+
+      <div className="max-w-xl mx-auto px-6 py-16 min-h-screen flex items-center">
+        <div className="w-full">
+          <div className="text-center mb-10">
+            <h1 className="font-display text-3xl font-bold text-gray-800 mb-3">
+              Выберите сессию для демо
+            </h1>
+            <p className="text-gray-500">
+              Три сессии из разных модулей программы. Каждая показывает тренажер на разном этапе: от калибровки до действия через дискомфорт.
+            </p>
+          </div>
+
+          <div className="max-w-lg mx-auto space-y-4">
+            {scenarios.map((scenario, i) => {
+              const meta = scenarioCardMeta[i]
+              return (
+                <button
+                  key={scenario.id}
+                  onClick={() => onSelect(scenario)}
+                  className="group w-full text-left border-2 border-gray-200 rounded-2xl p-5 hover:border-accent-400 hover:shadow-lg transition-all cursor-pointer"
+                >
+                  <span className={`inline-block px-2.5 py-1 text-xs font-medium rounded-full ${meta.badgeColors} mb-3`}>
+                    {meta.badge}
+                  </span>
+                  <div className="font-display text-lg font-semibold text-gray-800 mb-2">
+                    {scenario.title}
+                  </div>
+                  <p className="text-sm text-gray-500 mb-3">{meta.description}</p>
+                  <div className="text-right">
+                    <span className="text-xs text-gray-400">~{scenario.estimatedMinutes} мин</span>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+
+          {isInstructor && (
+            <div className="max-w-lg mx-auto">
+              <InstructorNote>
+                Три сценария демонстрируют прогрессию по программе. Сессия 0.2 (калибровка) замеряет базовую реакцию. Сессия 1.1 (распознавание) формирует осознание паттерна. Сессия 3.4 (действие) тренирует поведение через дискомфорт.
+              </InstructorNote>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -405,7 +481,7 @@ function StepSelfEfficacy({ step, onNext, isInstructor }) {
   )
 }
 
-function StepOutro({ step, onNavigate, isInstructor }) {
+function StepOutro({ step, onComplete, isInstructor }) {
   return (
     <div className="text-center">
       <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 mb-6">
@@ -429,7 +505,7 @@ function StepOutro({ step, onNavigate, isInstructor }) {
       <p className="text-sm text-gray-500 mb-8 max-w-md mx-auto">{step.progression}</p>
 
       <button
-        onClick={() => onNavigate('map')}
+        onClick={onComplete}
         className="px-8 py-3 bg-accent-600 text-white rounded-xl font-medium hover:bg-accent-700 active:scale-[0.98] transition-all shadow-lg shadow-accent-600/20"
       >
         {step.buttonText}
@@ -445,9 +521,22 @@ function StepOutro({ step, onNavigate, isInstructor }) {
 
 export default function SessionPlayer({ onNavigate }) {
   const { isInstructor } = useMode()
+  const [selectedScenario, setSelectedScenario] = useState(null)
   const [stepIndex, setStepIndex] = useState(0)
   const [choices, setChoices] = useState({})
-  const steps = session.steps
+
+  if (!selectedScenario) {
+    return (
+      <ScenarioPicker
+        scenarios={scenarios}
+        onSelect={(s) => { setSelectedScenario(s); setStepIndex(0); setChoices({}) }}
+        onNavigate={onNavigate}
+        isInstructor={isInstructor}
+      />
+    )
+  }
+
+  const steps = selectedScenario.steps
   const totalSteps = steps.length
   const currentStep = steps[stepIndex]
 
@@ -461,6 +550,12 @@ export default function SessionPlayer({ onNavigate }) {
   const handleChoice = (choiceId) => {
     setChoices({ ...choices, [currentStep.id]: choiceId })
     goNext()
+  }
+
+  const handleComplete = () => {
+    setSelectedScenario(null)
+    setStepIndex(0)
+    setChoices({})
   }
 
   const lastChoiceId = () => {
@@ -492,7 +587,7 @@ export default function SessionPlayer({ onNavigate }) {
       case 'selfefficacy':
         return <StepSelfEfficacy step={currentStep} onNext={goNext} isInstructor={isInstructor} />
       case 'outro':
-        return <StepOutro step={currentStep} onNavigate={onNavigate} isInstructor={isInstructor} />
+        return <StepOutro step={currentStep} onComplete={handleComplete} isInstructor={isInstructor} />
       default:
         return null
     }
@@ -511,12 +606,21 @@ export default function SessionPlayer({ onNavigate }) {
         </button>
       )}
 
-      <button
-        onClick={() => onNavigate('landing')}
-        className="fixed top-4 right-4 z-40 text-gray-400 hover:text-gray-600 transition-colors text-sm"
-      >
-        На главную
-      </button>
+      <div className="fixed top-4 right-4 z-40 flex items-center gap-4">
+        <button
+          onClick={handleComplete}
+          className="text-gray-400 hover:text-gray-600 transition-colors text-sm"
+        >
+          Другая сессия
+        </button>
+        <span className="text-gray-200">|</span>
+        <button
+          onClick={() => onNavigate('landing')}
+          className="text-gray-400 hover:text-gray-600 transition-colors text-sm"
+        >
+          На главную
+        </button>
+      </div>
 
       <div className="max-w-xl mx-auto px-6 py-16 min-h-screen flex items-center">
         <div className="w-full">

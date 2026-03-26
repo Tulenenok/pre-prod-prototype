@@ -5,6 +5,7 @@ import Landing from './components/Landing'
 import About from './components/About'
 import SessionPlayer from './components/SessionPlayer'
 import ProgramMap from './components/ProgramMap'
+import PitchDeck from './components/PitchDeck'
 
 function Router() {
   const [screen, setScreen] = useState('landing')
@@ -24,6 +25,7 @@ function Router() {
         {screen === 'about' && <About onNavigate={navigate} />}
         {screen === 'session' && <SessionPlayer onNavigate={navigate} />}
         {screen === 'map' && <ProgramMap onNavigate={navigate} />}
+        {screen === 'pitch' && <PitchDeck />}
       </div>
     </>
   )

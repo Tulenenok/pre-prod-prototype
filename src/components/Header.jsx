@@ -8,6 +8,7 @@ export default function Header({ currentPage, onNavigate }) {
     { id: 'about', label: 'О тренажере' },
     { id: 'session', label: 'Сессия' },
     { id: 'map', label: 'Программа' },
+    { id: 'pitch', label: 'Презентация' },
   ]
 
   return (

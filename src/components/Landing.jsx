@@ -130,6 +130,12 @@ export default function Landing({ onNavigate }) {
             >
               Узнать больше
             </button>
+            <button
+              onClick={() => onNavigate('pitch')}
+              className="px-8 py-4 bg-gray-900 text-white rounded-2xl font-semibold text-lg hover:bg-black transition-all duration-200 shadow-lg"
+            >
+              Открыть презентацию
+            </button>
           </div>
 
           <p className="text-sm text-gray-400 anim-fade-in-d3">

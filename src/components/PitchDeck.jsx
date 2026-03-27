@@ -171,9 +171,11 @@ const slides = [
     layout: 'valueDialog',
   },
   {
-    kicker: '',
-    title: 'Коммуникацию\nнужно тренировать.',
-    subtitle: 'Спасибо за внимание',
+    kicker: 'Вместо заключения',
+    title: 'Скоро первая работа?',
+    subtitle: '',
+    closingBody:
+      'Если ты планируешь выходить на первую работу и переживаешь о том, как и с кем общаться в команде, — будем рады видеть тебя среди участников нашей программы.',
     theme: 'contrast',
     layout: 'heroClosing',
     closingDialogue: [
@@ -718,7 +720,8 @@ export default function PitchDeck() {
                   slide.layout === 'productInfo' ||
                   slide.layout === PITCH_CHAT_LAYOUT ||
                   slide.layout === 'mechanicsCycle' ||
-                  slide.layout === 'programModules'
+                  slide.layout === 'programModules' ||
+                  slide.layout === 'heroClosing'
                     ? 'mb-1 text-[10px] tracking-[0.2em]'
                     : 'mb-4 text-xs tracking-[0.18em]'
                 }`}
@@ -729,8 +732,27 @@ export default function PitchDeck() {
             {slide.layout === 'hero' || slide.layout === 'heroClosing' ? (
               <div className="grid lg:grid-cols-2 gap-8 lg:gap-10 items-center">
                 <div>
-                  <h1 className="font-display text-6xl sm:text-8xl font-bold tracking-tight mb-3">{slide.title}</h1>
-                  <p className="text-lg sm:text-2xl opacity-90 mb-6 max-w-xl">{slide.subtitle}</p>
+                  {slide.layout === 'heroClosing' ? (
+                    <>
+                      <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl mb-4 max-w-xl">
+                        {slide.title}
+                      </h1>
+                      {slide.closingBody ? (
+                        <p className="mb-6 max-w-xl text-base leading-relaxed opacity-90 sm:text-lg">
+                          {slide.closingBody}
+                        </p>
+                      ) : (
+                        slide.subtitle && (
+                          <p className="mb-6 max-w-xl text-lg opacity-90 sm:text-2xl">{slide.subtitle}</p>
+                        )
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <h1 className="font-display text-6xl sm:text-8xl font-bold tracking-tight mb-3">{slide.title}</h1>
+                      <p className="text-lg sm:text-2xl opacity-90 mb-6 max-w-xl">{slide.subtitle}</p>
+                    </>
+                  )}
                 </div>
 
                 <div className="rounded-2xl border border-white/20 bg-black/45 backdrop-blur-sm p-4 pixel-font">
@@ -952,17 +974,19 @@ export default function PitchDeck() {
             )}
 
             {slide.layout === 'profile' && (
-              <div className="mb-3 grid md:grid-cols-2 gap-6 items-stretch min-h-[34vh]">
-                <div className="rounded-3xl overflow-hidden border border-white/25 bg-white/10 flex items-center justify-center">
+              <div className="mb-3 grid md:grid-cols-2 gap-6 md:items-start">
+                <div
+                  className="relative mx-auto aspect-[3/4] w-full max-w-[170px] overflow-hidden rounded-3xl border border-white/20 bg-transparent sm:max-w-[185px] md:mx-0 md:max-w-[200px] lg:max-w-[220px] md:justify-self-start"
+                >
                   <img
-                    src="/assets/natalia-photo.jpg"
+                    src={`${import.meta.env.BASE_URL}assets/natalia-photo.jpg`}
                     alt="Наталия Гурова"
-                    className="w-full h-full object-cover"
+                    className="absolute inset-0 h-full w-full object-contain object-center mix-blend-multiply"
+                    decoding="async"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none'
                     }}
                   />
-                  <span className="font-display text-5xl text-white/70">NG</span>
                 </div>
 
                 <div className="flex flex-col justify-center gap-4">

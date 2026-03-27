@@ -979,7 +979,7 @@ export default function PitchDeck() {
                   className="relative mx-auto aspect-[3/4] w-full max-w-[170px] overflow-hidden rounded-3xl border border-white/20 bg-transparent sm:max-w-[185px] md:mx-0 md:max-w-[200px] lg:max-w-[220px] md:justify-self-start"
                 >
                   <img
-                    src={`${import.meta.env.BASE_URL}assets/natalia-photo.jpg`}
+                    src={`${import.meta.env.BASE_URL}assets/natalia-photo.png`}
                     alt="Наталия Гурова"
                     className="absolute inset-0 h-full w-full object-contain object-center mix-blend-multiply"
                     decoding="async"
